@@ -171,9 +171,25 @@ fun LoginForm() {
 
                             // Mostrar mensajes según el tipo de usuario
                             when {
-                                esAdmin -> Toast.makeText(context, "Bienvenido, administrador", Toast.LENGTH_SHORT).show()
-                                esCreador -> Toast.makeText(context, "Bienvenido, creador de contenido", Toast.LENGTH_SHORT).show()
-                                else -> Toast.makeText(context, "Bienvenido, usuario", Toast.LENGTH_SHORT).show()
+                                esAdmin -> {
+                                    Toast.makeText(context, "Bienvenido, administrador", Toast.LENGTH_SHORT).show()
+
+                                    // Redirigir a la actividad de administrador
+                                    val intent = Intent(context, HomeActivity::class.java)
+                                    context.startActivity(intent)
+                                }
+                                esCreador -> {
+                                    Toast.makeText(context, "Bienvenido, creador", Toast.LENGTH_SHORT).show()
+                                    // Redirigir a la actividad de creador
+                                    // Mensaje de que necesita ser administrador para acceder
+                                    Toast.makeText(context, "Necesitas ser administrador para acceder", Toast.LENGTH_SHORT).show()
+                                }
+                                else -> {
+                                    Toast.makeText(context, "Bienvenido, usuario", Toast.LENGTH_SHORT).show()
+                                    // Redirigir a la actividad de usuario
+                                    // Mensaje de que necesita ser administrador para acceder
+                                    Toast.makeText(context, "Necesitas ser administrador para acceder", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         } else {
                             Toast.makeText(context, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
