@@ -1,6 +1,8 @@
 package com.example.donacionesjava
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -40,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,6 +71,11 @@ class HomeActivity : ComponentActivity() {
 
 @Composable
 fun HomeView() {
+
+    val context = LocalContext.current;
+
+    val coroutineScope = rememberCoroutineScope();
+
     // Estado para los creadores de contenido
     var creadores by remember { mutableStateOf<List<CreadorContenido>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -119,8 +127,30 @@ fun HomeView() {
                     items(creadores) { creador ->
                         CreadorContenidoCard(
                             creador = creador,
-                            onHacerPartnerClick = { /* Lógica para hacer Partner */ },
-                            onVerSuscriptoresClick = { /* Lógica para ver suscriptores */ }
+                            onHacerPartnerClick = {
+                                // Corremos la coroutine para hacer el put
+                                creador.cuentaBloqueada = true;
+                                coroutineScope.launch {
+                                    try {
+                                        // Hacer el POST con Retrofit
+                                        val response = RetrofitInstance.apiService.updateCreador(creador)
+
+                                        // Mostrar un mensaje según la respuesta del servidor
+                                        if (response.OK) {
+                                            Toast.makeText(context, "Creador actualizado con exito", Toast.LENGTH_SHORT).show()
+                                            // Redirigir al login o a donde necesites
+//
+                                        } else {
+                                            Toast.makeText(context, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            },
+                            onVerSuscriptoresClick = {
+                                // Vamos al activity para ver los suscriptores
+                            }
                         )
                     }
                 }
@@ -136,11 +166,25 @@ fun CreadorContenidoCard(
     onVerSuscriptoresClick: (CreadorContenido) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var nombreUsuario by remember { mutableStateOf<String?>(null) }
+
+    // Cargar los datos del usuario
+    LaunchedEffect(creador.id) {
+        try {
+            val usuario = RetrofitInstance.apiService.getUsuarioById(creador.id!!).data
+            nombreUsuario = usuario.nombre
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error al cargar el usuario: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFA726)), // Anaranjado elegante
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFA726)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
@@ -168,13 +212,11 @@ fun CreadorContenidoCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                creador.nombre?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = Color.White
-                    )
-                }
+                Text(
+                    text = nombreUsuario ?: "Cargando...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.7f)
+                )
                 Text(
                     text = if (creador.partner) "Partner" else "No es Partner",
                     style = MaterialTheme.typography.bodyMedium,
@@ -202,6 +244,7 @@ fun CreadorContenidoCard(
         }
     }
 }
+
 
 @Composable
 fun CreadoresContenidoList(

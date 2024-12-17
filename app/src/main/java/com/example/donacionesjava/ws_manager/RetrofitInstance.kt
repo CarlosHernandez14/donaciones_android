@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitInstance {
 
     // Cambiar por la IP de la computadora
-    private const val BASE_URL = "http://192.168.1.73/WS_Donaciones/"
+    private const val BASE_URL = "http://10.27.45.25/WS_Donaciones/"
 
     // Singleton de Retrofit
     private val retrofit by lazy {

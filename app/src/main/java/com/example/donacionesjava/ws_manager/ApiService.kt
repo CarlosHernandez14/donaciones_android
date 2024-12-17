@@ -7,9 +7,12 @@ import retrofit2.Retrofit
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Query
 
 
-interface ApiService {
+interface
+ApiService {
 
     @GET("users.php")
     suspend fun getUsuarios(): ApiResponse<List<Usuario>>
@@ -25,4 +28,11 @@ interface ApiService {
 
     @POST("creators.php")
     suspend fun registerCreador(@Body creador: CreadorContenido): ApiResponse<String>
+
+    @PUT("creators.php")
+    suspend fun updateCreador(@Body creador: CreadorContenido): ApiResponse<String>
+
+    @GET("users.php")
+    suspend fun getUsuarioById(@Query("idUsuario") id: String): ApiResponse<Usuario>
+
 }

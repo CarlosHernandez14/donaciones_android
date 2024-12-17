@@ -1,6 +1,7 @@
 package com.example.donacionesjava.domain
 
 open class CreadorContenido : Usuario {
+
     var idCreador: String? = null
     var cuentaBloqueada: Boolean = false
     var suscriptores: ArrayList<String> = ArrayList()
