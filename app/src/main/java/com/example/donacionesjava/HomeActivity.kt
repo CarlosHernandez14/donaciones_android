@@ -72,26 +72,19 @@ class HomeActivity : ComponentActivity() {
 
 @Composable
 fun HomeView() {
-
-    val context = LocalContext.current;
-
-    val coroutineScope = rememberCoroutineScope();
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     // Estado para los creadores de contenido
     var creadores by remember { mutableStateOf<List<CreadorContenido>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Efecto para cargar los datos una vez
+    // Efecto para cargar los datos iniciales
     LaunchedEffect(Unit) {
         try {
             val response = RetrofitInstance.apiService.getCreadores()
-            creadores = response.data // Ajusta según cómo estructuraste tu `ApiResponse`
-
-            // Impresión de los creadores
-
-            //creadores.forEach { creador -> Log.d("Creador", creador.toString()) }
-
+            creadores = response.data
             isLoading = false
         } catch (e: Exception) {
             errorMessage = "Error al cargar los datos: ${e.message}"
@@ -99,7 +92,6 @@ fun HomeView() {
         }
     }
 
-    // UI
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -123,43 +115,40 @@ fun HomeView() {
 
         when {
             isLoading -> {
+                // Text que muestra un mensaje de carga
                 Text(text = "Cargando...", style = MaterialTheme.typography.bodyMedium)
             }
             errorMessage != null -> {
                 Text(text = errorMessage!!, color = Color.Red, style = MaterialTheme.typography.bodyMedium)
             }
             else -> {
-                LazyColumn {
-                    items(creadores) { creador ->
-                        CreadorContenidoCard(
-                            creador = creador,
-                            onHacerPartnerClick = {
-                                // Corremos la coroutine para hacer el put
-                                creador.partner = true;
-                                coroutineScope.launch {
-                                    try {
-                                        // Hacer el POST con Retrofit
-                                        val response = RetrofitInstance.apiService.updateCreador(creador)
+                CreadoresContenidoList(
+                    creadores = creadores,
+                    onHacerPartnerClick = { updatedCreador ->
+                        val updatedList = creadores.map {
+                            if (it.idUsuario == updatedCreador.idUsuario) {
+                                it.copy(partner = !it.partner)
+                            } else it
+                        }
+                        creadores = updatedList
 
-                                        // Mostrar un mensaje según la respuesta del servidor
-                                        if (response.OK) {
-                                            Toast.makeText(context, "Creador actualizado con exito", Toast.LENGTH_SHORT).show()
-                                            // Redirigir al login o a donde necesites
-//
-                                        } else {
-                                            Toast.makeText(context, "Error al actualizar al usuario", Toast.LENGTH_SHORT).show()
-                                        }
-                                    } catch (e: Exception) {
-                                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-                                    }
+                        coroutineScope.launch {
+                            try {
+                                val response = RetrofitInstance.apiService.updateCreador(updatedCreador)
+                                if (response.OK) {
+                                    Toast.makeText(context, "Creador actualizado con éxito", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Error al actualizar al usuario", Toast.LENGTH_SHORT).show()
                                 }
-                            },
-                            onVerSuscriptoresClick = {
-                                // Vamos al activity para ver los suscriptores
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                             }
-                        )
+                        }
+                    },
+                    onVerSuscriptoresClick = { creador ->
+                        Toast.makeText(context, "Ver suscriptores de ${creador.idUsuario}", Toast.LENGTH_SHORT).show()
                     }
-                }
+                )
             }
         }
     }
@@ -173,24 +162,16 @@ fun CreadorContenidoCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    var nombreUsuario by remember { mutableStateOf<String?>(null) }
+    var nombreUsuario by remember { mutableStateOf<String?>("Cargando...") }
 
-    // Imprimimos al creador en logs
-    Log.d("Creador", creador.toString())
-
-    // Cargar los datos del usuario
+    // Efecto para obtener el usuario asociado al creador
     LaunchedEffect(creador) {
         try {
             val usuarios = RetrofitInstance.apiService.getUsuarios().data
-            // Obtenemos el usuario con el id creador.id
             val usuario = usuarios.find { it.idUsuario == creador.idUsuario }
-
-            // IMPRIMIR LOS USUARIOS
-            usuarios.forEach { usuario -> Log.d("Usuario for each", usuario.toString()) }
-
-            nombreUsuario = usuario?.nombre
+            nombreUsuario = usuario?.nombre ?: "Desconocido"
         } catch (e: Exception) {
+            nombreUsuario = "Error al cargar"
             Toast.makeText(context, "Error al cargar el usuario: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -277,3 +258,4 @@ fun CreadoresContenidoList(
         }
     }
 }
+

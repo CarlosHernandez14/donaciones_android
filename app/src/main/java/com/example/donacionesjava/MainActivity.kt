@@ -159,6 +159,10 @@ fun LoginForm() {
                     try {
                         // Obtener todos los usuarios
                         val usuarios = RetrofitInstance.apiService.getUsuarios().data
+                        // IMPRIMIR USUAIROS
+                        usuarios.forEach {
+                            Log.d("USUARIO", it.toString())
+                        }
                         val usuarioEncontrado = usuarios.find { it.correo == email && it.contrasena == WSManager.hashSHA1(password) }
 
                         if (usuarioEncontrado != null) {
