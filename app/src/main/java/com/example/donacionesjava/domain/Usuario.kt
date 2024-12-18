@@ -4,15 +4,15 @@ import java.io.Serializable
 import kotlin.random.Random
 
 open class Usuario : Serializable {
-    var id: String? = null
+    var idUsuario: String? = null
     var nombre: String? = null
     var correo: String? = null
     var contrasena: String? = null
 
     constructor()
 
-    constructor(id: String, nombre: String, correo: String, contrasena: String) {
-        this.id = id
+    constructor(idUsuario: String, nombre: String, correo: String, contrasena: String) {
+        this.idUsuario = idUsuario
         this.nombre = nombre
         this.correo = correo
         this.contrasena = contrasena
@@ -34,6 +34,6 @@ open class Usuario : Serializable {
     }
 
     override fun toString(): String {
-        return "Usuario(id=$id, nombre=$nombre, correo=$correo, contrasena=$contrasena)"
+        return "Usuario(id=$idUsuario, nombre=$nombre, correo=$correo, contrasena=$contrasena)"
     }
 }

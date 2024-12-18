@@ -166,8 +166,8 @@ fun LoginForm() {
                             val admins = RetrofitInstance.apiService.getAdmins().data
                             val creadores = RetrofitInstance.apiService.getCreadores().data
 
-                            val esAdmin = admins.any { it.id == usuarioEncontrado.id }
-                            val esCreador = creadores.any { it.id == usuarioEncontrado.id }
+                            val esAdmin = admins.any { it.idUsuario == usuarioEncontrado.idUsuario }
+                            val esCreador = creadores.any { it.idUsuario == usuarioEncontrado.idUsuario }
 
                             // Mostrar mensajes según el tipo de usuario
                             when {

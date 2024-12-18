@@ -1,45 +1,31 @@
 package com.example.donacionesjava.domain
 
-open class CreadorContenido : Usuario {
+open class CreadorContenido {
 
     var idCreador: String? = null
-    var cuentaBloqueada: Boolean = false
-    var suscriptores: ArrayList<String> = ArrayList()
+    var cuenta_bloqueada: Boolean = false
     var partner: Boolean = false
+    var idUsuario: String? = null
 
-    constructor(
-        idCreador: String,
-        idUsuario: String,
-        nombre: String,
-        email: String,
-        contrasena: String
-    ) : super(idUsuario, nombre, email, contrasena) {
+    constructor()
+
+    constructor(idCreador: String, cuenta_bloqueada: Boolean, partner: Boolean, idUsuario: String) {
         this.idCreador = idCreador
+        this.cuenta_bloqueada = cuenta_bloqueada
+        this.partner = partner
+        this.idUsuario = idUsuario
     }
 
-    constructor(
-        idCreador: String,
-        idUsuario: String,
-        nombre: String,
-        email: String,
-        contrasena: String,
-        suscriptores: ArrayList<String>
-    ) : super(idUsuario, nombre, email, contrasena) {
-        this.idCreador = idCreador
-        this.suscriptores = suscriptores
-    }
+    // Con
 
-    constructor(nombre: String, email: String, contrasena: String) : super(nombre, email, contrasena)
-
-    constructor(idCreador: String, cuentaBloqueada: Boolean, partner: Boolean) {
+    constructor(idCreador: String, partner: Boolean) {
         this.idCreador = idCreador
-        this.cuentaBloqueada = cuentaBloqueada
         this.partner = partner
     }
 
 
 
     override fun toString(): String {
-        return "CreadorContenido(cuentaBloqueada=$cuentaBloqueada, partner=$partner, suscriptores=$suscriptores) ${super.toString()}"
+        return "CreadorContenido(idCreador=$idCreador, cuenta_bloqueada=$cuenta_bloqueada, partner=$partner, idUsuario=$idUsuario)"
     }
 }

@@ -2,6 +2,7 @@ package com.example.donacionesjava
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -86,6 +87,11 @@ fun HomeView() {
         try {
             val response = RetrofitInstance.apiService.getCreadores()
             creadores = response.data // Ajusta según cómo estructuraste tu `ApiResponse`
+
+            // Impresión de los creadores
+
+            //creadores.forEach { creador -> Log.d("Creador", creador.toString()) }
+
             isLoading = false
         } catch (e: Exception) {
             errorMessage = "Error al cargar los datos: ${e.message}"
@@ -129,7 +135,7 @@ fun HomeView() {
                             creador = creador,
                             onHacerPartnerClick = {
                                 // Corremos la coroutine para hacer el put
-                                creador.cuentaBloqueada = true;
+                                creador.partner = true;
                                 coroutineScope.launch {
                                     try {
                                         // Hacer el POST con Retrofit
@@ -141,7 +147,7 @@ fun HomeView() {
                                             // Redirigir al login o a donde necesites
 //
                                         } else {
-                                            Toast.makeText(context, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Error al actualizar al usuario", Toast.LENGTH_SHORT).show()
                                         }
                                     } catch (e: Exception) {
                                         Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
@@ -170,11 +176,20 @@ fun CreadorContenidoCard(
     val coroutineScope = rememberCoroutineScope()
     var nombreUsuario by remember { mutableStateOf<String?>(null) }
 
+    // Imprimimos al creador en logs
+    Log.d("Creador", creador.toString())
+
     // Cargar los datos del usuario
-    LaunchedEffect(creador.id) {
+    LaunchedEffect(creador) {
         try {
-            val usuario = RetrofitInstance.apiService.getUsuarioById(creador.id!!).data
-            nombreUsuario = usuario.nombre
+            val usuarios = RetrofitInstance.apiService.getUsuarios().data
+            // Obtenemos el usuario con el id creador.id
+            val usuario = usuarios.find { it.idUsuario == creador.idUsuario }
+
+            // IMPRIMIR LOS USUARIOS
+            usuarios.forEach { usuario -> Log.d("Usuario for each", usuario.toString()) }
+
+            nombreUsuario = usuario?.nombre
         } catch (e: Exception) {
             Toast.makeText(context, "Error al cargar el usuario: ${e.message}", Toast.LENGTH_SHORT).show()
         }
@@ -229,7 +244,7 @@ fun CreadorContenidoCard(
                     onClick = { onHacerPartnerClick(creador) },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB74D))
                 ) {
-                    Text(text = "Hacer Partner", color = Color.White)
+                    Text(text = if (creador.partner) "Deshacer partner" else "Hacer Partner", color = Color.White)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
